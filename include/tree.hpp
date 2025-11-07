@@ -2,6 +2,7 @@
 #define TREE_HPP_
 
 #include <stdlib.h>
+#include <limits.h>
 
 typedef int tree_elem_t;
 
@@ -13,7 +14,7 @@ enum TreeError {
     TREE_OK              =  0
 };
 
-static const tree_elem_t ROOT_VALUE = 1234113251;
+static const tree_elem_t ROOT_VALUE = INT_MAX;
 
 static const char DUMP_FILE_NAME[] = "dump_file.html";
 static const char BUILD_DUMP_FILE_NAME[] = "build_dump_file.dot";
@@ -43,9 +44,9 @@ struct Tree {
 };
 
 
-TreeError TreeNodeConstructor(TreeNode* node, tree_elem_t value);
+TreeError TreeNodeInit(TreeNode* node, tree_elem_t value);
 
-TreeError TreeNodeDestructor(TreeNode* node);
+TreeError TreeNodeDestroy(TreeNode* node);
 
 TreeNode* TreeNodeGetParent(TreeNode* node);
 
@@ -64,5 +65,11 @@ TreeError TreeNodeSetValue(TreeNode* node, tree_elem_t new_value);
 void TreeDump(Tree* tree, const char* file, int line);
 
 #define TREE_DUMP(tree) TreeDump(tree, __FILE__, __LINE__)
+
+TreeError TreeInit(Tree* tree);
+
+TreeError TreeDestroy(Tree* tree);
+
+TreeError TreeAdd(Tree* tree, TreeNode* new_node);
 
 #endif // TREE_HPP_

@@ -18,7 +18,7 @@ void TreePrintError(Tree* tree, const char* file, int line) {
     fprintf(stderr, "Error in %s:%d:\n %s\n", file, line, TreeStrError(tree->last_error));
 }
 
-TreeError TreeNodeConstructor(TreeNode* node, tree_elem_t value) {
+TreeError TreeNodeInit(TreeNode* node, tree_elem_t value) {
     assert(node != NULL);
 
     node->parent = NULL;
@@ -30,7 +30,7 @@ TreeError TreeNodeConstructor(TreeNode* node, tree_elem_t value) {
     return TREE_OK;
 }
 
-TreeError TreeNodeDestructor(TreeNode* node) {
+TreeError TreeNodeDestroy(TreeNode* node) {
     assert(node != NULL);
 
     node->parent = NULL;
@@ -193,3 +193,62 @@ void TreeDump(Tree* tree, const char* file, int line) {
 
     fclose(dump_file);
 }
+
+TreeError TreeInit(Tree* tree) {
+    TreeNode* root = (TreeNode*)calloc(1, sizeof(TreeNode));
+    TreeNodeInit(root, ROOT_VALUE);
+    tree->root = root;
+
+    tree->size = 0;
+
+    tree->last_error = TREE_OK;
+
+    return TREE_OK;
+}
+
+TreeError TreeDestroy(Tree* tree) {
+    free(tree->root);
+    tree->root = NULL;
+
+    tree->size = 0;
+
+    tree->last_error = TREE_OK;
+
+    return TREE_OK;
+}
+
+TreeError TreeAdd(Tree* tree, TreeNode* new_node) {
+    tree_elem_t new_node_value = TreeNodeGetValue(new_node);
+
+    TreeNode* node = tree->root;
+    while (true) {
+        tree_elem_t value = TreeNodeGetValue(node);
+        TreeNode* left = TreeNodeGetLeft(node);
+        TreeNode* right = TreeNodeGetRight(node);
+
+        if (new_node_value <= value) {
+            if (left == NULL) {
+                break;
+            }
+            node = TreeNodeGetLeft(node);
+        }
+        else {
+            if (right == NULL) {
+                break;
+            }
+            node = TreeNodeGetRight(node);
+        }
+    }
+
+    if (new_node_value <= TreeNodeGetValue(node)) {
+        TreeNodeSetLeft(node, new_node);
+    }
+    else {
+        TreeNodeSetRight(node, new_node);
+    }
+
+    tree->size++;
+
+    return tree->last_error = TREE_OK;
+}
+
